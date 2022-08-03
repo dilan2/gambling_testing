@@ -7,6 +7,8 @@ import { AppGateway } from './app.gateway';
 import { ChatGateway } from './chat/chat.gateway';
 import { EventsModule } from './events/events.module';
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from './config/config.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { UsersModule } from './users/users.module';
       url: 'redis://localhost:6379',
     }),
     UsersModule,
+    AuthModule,
+    ConfigModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppGateway, ChatGateway],
