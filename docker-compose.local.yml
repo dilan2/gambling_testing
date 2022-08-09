@@ -26,6 +26,32 @@ services:
     image: redis:6.2.1-alpine
     ports: 
       - "6379:6379"
+  zookeeper:
+    image: 'bitnami/zookeeper:latest'
+    ports:
+      - '2181:2181'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+  kafka:
+    image: 'bitnami/kafka:latest'
+    ports:
+      - '9092:9092'
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper
+  zoonavigator:
+    image: elkozmon/zoonavigator:latest
+    ports:
+      - '9000:9000'
+    environment:
+      - HTTP_PORT=9000
+    depends_on:
+      - zookeeper
   # flower:
   #   image: mher/flower:0.9.7
   #   command: "flower --port=5555 --broker=redis://redis:6379/0 --basic_auth=user1:password1" 

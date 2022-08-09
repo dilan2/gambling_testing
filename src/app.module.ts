@@ -9,11 +9,15 @@ import { EventsModule } from './events/events.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from './config/config.module';
+import { KafsocketsModule } from './kafsockets/kafsockets.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
     MongooseModule.forRoot(
       'mongodb://aragamble_local:aragamble@localhost:27017/',
+      { useNewUrlParser: true },
     ),
     ProductsModule,
     EventsModule.forRoot({
@@ -22,8 +26,10 @@ import { ConfigModule } from './config/config.module';
     UsersModule,
     AuthModule,
     ConfigModule,
+    KafsocketsModule.forRoot(),
+    EventEmitterModule.forRoot(),
   ],
   controllers: [AppController],
-  providers: [AppService, AppGateway, ChatGateway],
+  providers: [AppService, AppGateway, ChatGateway, JwtService],
 })
 export class AppModule {}

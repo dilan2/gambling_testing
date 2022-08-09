@@ -1,20 +1,41 @@
-import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Request,
+  Post,
+  UseGuards,
+  Get,
+  Body,
+  Param,
+  HttpStatus,
+  Res,
+} from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { LocalAuthGuard } from './guards/local-auth.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { LoginDto } from './dto/login.dto';
+import { errorConstants } from './constants';
 
-@Controller('auth')
+@Controller()
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private authService: AuthService) {}
 
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(AuthGuard('local'))
   @Post('auth/login')
-  async login(@Request() req) {
-    // console.log(JSON.stringify(req));
+  async login(@Body() LoginDto: LoginDto, @Request() req) {
     return this.authService.login(req.user);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Post('auth/refresh/:token')
+  async refreshToken(@Param('token') tokenValue: string, @Res() res) {
+    const response = await this.authService.refresh(tokenValue);
+    if (response === errorConstants.refreshError) {
+      return res.status(HttpStatus.FORBIDDEN).json(response);
+    }
+    return res.status(HttpStatus.OK).json(response);
+  }
+
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(AuthGuard('jwt'))
   @Get('profile')
   getProfile(@Request() req) {
     return req.user;
